@@ -1,10 +1,10 @@
 #include "globalbinarization.h"
 #include <iostream>
 
-float GlobalBinarization::OtsuMethod::varianceBetweenClass(const std::vector<float>& histogram, int startThreshold, int maxGrayLevel)
+float GlobalBinarization::OtsuMethod::varianceBetweenClass(const std::vector<float>& histogram, int threshold, int maxGrayLevel)
 {
     float weight0 = 0;
-    for (size_t grayLevelIdx = 0; grayLevelIdx < startThreshold; ++grayLevelIdx)
+    for (size_t grayLevelIdx = 0; grayLevelIdx < threshold + 1; ++grayLevelIdx)
         weight0 += histogram[grayLevelIdx];
 
     const float weight1 = 1.0f - weight0;
@@ -12,28 +12,16 @@ float GlobalBinarization::OtsuMethod::varianceBetweenClass(const std::vector<flo
     float mu0 = 0.0f;
     float mu1 = 0.0f;
 
-    for (size_t grayLevelIdx = 0; grayLevelIdx < startThreshold; ++grayLevelIdx)
+    for (size_t grayLevelIdx = 0; grayLevelIdx < threshold + 1; ++grayLevelIdx)
         mu0 += grayLevelIdx * histogram[grayLevelIdx];
 
-    for (size_t grayLevelIdx = startThreshold; grayLevelIdx < maxGrayLevel + 1; ++grayLevelIdx)
+    for (size_t grayLevelIdx = threshold + 1; grayLevelIdx < maxGrayLevel + 1; ++grayLevelIdx)
         mu1 += grayLevelIdx * histogram[grayLevelIdx];
 
     mu0 /= weight0;
     mu1 /= weight1;
 
-//    float variance0 = 0.0f;
-//    float variance1 = 0.0f;
-//    for (size_t grayLevelIdx = 0; grayLevelIdx < startThreshold; ++grayLevelIdx)
-//        variance0 += (grayLevelIdx - mu0) * (grayLevelIdx - mu0) * histogram[grayLevelIdx];
-
-//    for (size_t grayLevelIdx = startThreshold; grayLevelIdx < 256; ++grayLevelIdx)
-//        variance1 += (grayLevelIdx - mu1) * (grayLevelIdx - mu1) * histogram[grayLevelIdx];
-
-//    variance0 /= weight0;
-//    variance1 /= weight1;
-//    std::cout<< "weight0: " << weight0 << " weight1: " << weight1 << " mu0: " << mu0 << " mu1: " << mu1 << std::endl;
-    float varianceBetweenClass = weight0 * weight1 * (mu1 - mu0) * (mu1 - mu0);
-//    float varianceWithinClass = weight0 * mu0 + weight1 * mu1;
+    const float varianceBetweenClass = weight0 * weight1 * (mu1 - mu0) * (mu1 - mu0);
 
     return varianceBetweenClass;
 }
@@ -54,21 +42,24 @@ int GlobalBinarization::OtsuMethod::bestThreshold(const cv::Mat& sourceImage)
 
     float numberOfNonZeroGrayValues = 0.0;
     for (float numberOfCurrentValue: histogram)
-        if (numberOfCurrentValue > 1e-10)
+        if (numberOfCurrentValue > std::numeric_limits<float>::epsilon())
             numberOfNonZeroGrayValues += numberOfCurrentValue;
+
+    int bestThreshold = 255;
+    if (numberOfNonZeroGrayValues < std::numeric_limits<float>::epsilon())
+        return bestThreshold;
 
     float value = 0.0;
     for (size_t grayLevelIdx = 0 ; grayLevelIdx < maxGrayLevel + 1; ++grayLevelIdx) {
-                histogram[(int)grayLevelIdx] /= numberOfNonZeroGrayValues;
-                value += histogram[(int)grayLevelIdx];
+        histogram[(int)grayLevelIdx] /= numberOfNonZeroGrayValues;
+        value += histogram[(int)grayLevelIdx];
     }
 
-    if (value - 1.0f > 1e-10)
+    if (value - 1.0f > std::numeric_limits<float>::epsilon())
         std::cout<< "smth goes wrong, value: " << value << std::endl;
 
     float maxVarianceBetweenClass = 0.0f;
-    int bestThreshold = 0;
-    for (int threshold = 0; threshold < maxGrayLevel; ++threshold) {
+    for (int threshold = 0; threshold < maxGrayLevel + 1; ++threshold) {
         const float currentVariance = varianceBetweenClass(histogram, threshold, maxGrayLevel);
         if (currentVariance > maxVarianceBetweenClass) {
             maxVarianceBetweenClass = currentVariance;
