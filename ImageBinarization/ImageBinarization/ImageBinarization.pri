@@ -6,13 +6,10 @@ include($$PWD/../../OpenCV.pri)
 
 HEADERS += \
     $$PWD/globalbinarization.h \
+    $$PWD/localbinarization.h
+
 
 SOURCES += \
     $$PWD/globalbinarization.cpp \
-}
-
-HEADERS += \
-    $$PWD/localbinarization.h
-
-SOURCES += \
     $$PWD/localbinarization.cpp
+}
