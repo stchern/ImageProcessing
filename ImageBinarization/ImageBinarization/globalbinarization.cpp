@@ -1,9 +1,8 @@
 #include "globalbinarization.h"
 //#define NDEBUG
 #include <cassert>
-#include <iostream>
 
-float GlobalBinarization::OtsuMethod::varianceBetweenClass(const std::vector<float>& histogram, int threshold, int maxGrayLevel)
+float GlobalBinarization::OtsuMethod::Internal::varianceBetweenClass(const std::vector<float>& histogram, int threshold, int maxGrayLevel)
 {
     float weight0 = 0;
     for (size_t grayLevelIdx = 0; grayLevelIdx < threshold + 1; ++grayLevelIdx)
@@ -60,8 +59,8 @@ int GlobalBinarization::OtsuMethod::bestThreshold(const cv::Mat& sourceImage)
     assert(std::fabs(sumOfProbabilites - 1.0f) < std::numeric_limits<float>::epsilon() && "the sum of the probabilities must be equal to one");
 
     float maxVarianceBetweenClass = 0.0f;
-    for (int threshold = 0; threshold < maxGrayLevel + 1; ++threshold) {
-        const float currentVariance = varianceBetweenClass(histogram, threshold, maxGrayLevel);
+    for (size_t threshold = 0; threshold < maxGrayLevel + 1; ++threshold) {
+        const float currentVariance = Internal::varianceBetweenClass(histogram, threshold, maxGrayLevel);
         if (currentVariance > maxVarianceBetweenClass) {
             maxVarianceBetweenClass = currentVariance;
             bestThreshold = threshold;
@@ -71,7 +70,7 @@ int GlobalBinarization::OtsuMethod::bestThreshold(const cv::Mat& sourceImage)
     return bestThreshold;
 }
 
-cv::Mat GlobalBinarization::binarizeImageByThreshold(const cv::Mat& sourceImage, int threshold)
+cv::Mat GlobalBinarization::binarize(const cv::Mat& sourceImage, int threshold)
 {
     cv::Mat resultImage(sourceImage.size(), CV_8UC1);
     for (size_t row = 0 ; row < sourceImage.rows; ++row)
