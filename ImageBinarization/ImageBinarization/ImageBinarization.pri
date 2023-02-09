@@ -10,3 +10,9 @@ HEADERS += \
 SOURCES += \
     $$PWD/globalbinarization.cpp \
 }
+
+HEADERS += \
+    $$PWD/localbinarization.h
+
+SOURCES += \
+    $$PWD/localbinarization.cpp
