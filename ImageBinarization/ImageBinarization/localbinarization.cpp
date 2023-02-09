@@ -1,5 +1,4 @@
 #include "localbinarization.h"
-#include <iostream>
 
 void LocalBinarization::BernsenMethod::Internal::binarizeBlock(
         const cv::Mat& sourceImage, size_t upperRow, size_t leftCol, size_t bottomRow, size_t rightCol, int contrastLimit, int globalThreshold, cv::Mat& outImage)
