@@ -8,12 +8,17 @@ namespace GlobalBinarization
 
 namespace OtsuMethod {
 
+namespace Internal {
+
 float varianceBetweenClass(const std::vector<float>& histogram, int startThreshold, int maxGrayLevel);
+
+}
+
 int bestThreshold(const cv::Mat& sourceImage);
 
 }
 
-cv::Mat binarizeImageByThreshold(const cv::Mat& sourceImage, int threshold);
+cv::Mat binarize(const cv::Mat& sourceImage, int threshold);
 
 };
 
