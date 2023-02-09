@@ -30,6 +30,7 @@ void LocalBinarization::BernsenMethod::Internal::binarizeBlock(
 cv::Mat LocalBinarization::BernsenMethod::binarize(const cv::Mat& sourceImage, int windowSize, int contrastLimit, int globalThreshold)
 {
     assert((windowSize > 1 && windowSize < sourceImage.rows && windowSize < sourceImage.cols) && "windowSize must be less then image height/width and greater then 1");
+    assert(windowSize % 2 == 1 && "windowSize must be odd");
 
     cv::Mat resultImage(sourceImage.size(), CV_8UC1);
 
@@ -38,9 +39,9 @@ cv::Mat LocalBinarization::BernsenMethod::binarize(const cv::Mat& sourceImage, i
     const size_t halfWindowSize = windowSize / 2;
 
     for (size_t row = halfWindowSize; row < nRows; ++row) {
-        size_t bottomRow = std::min(row + halfWindowSize, nRows);
+        size_t bottomRow = std::min(row + halfWindowSize + 1, nRows);
         for (size_t col = halfWindowSize; col < nCols; ++col) {
-            size_t rightCol = std::min(col + halfWindowSize, nCols);
+            size_t rightCol = std::min(col + halfWindowSize + 1, nCols);
             Internal::binarizeBlock(sourceImage, row - halfWindowSize, col - halfWindowSize, bottomRow, rightCol, contrastLimit, globalThreshold, resultImage);
         }
     }
