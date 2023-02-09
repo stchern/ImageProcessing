@@ -1,6 +1,4 @@
 #include "globalbinarization.h"
-//#define NDEBUG
-#include <cassert>
 
 float GlobalBinarization::OtsuMethod::Internal::varianceBetweenClass(const std::vector<float>& histogram, int threshold, int maxGrayLevel)
 {
@@ -50,13 +48,8 @@ int GlobalBinarization::OtsuMethod::bestThreshold(const cv::Mat& sourceImage)
     if (numberOfNonZeroGrayValues < std::numeric_limits<float>::epsilon())
         return bestThreshold;
 
-    float sumOfProbabilites = 0.0f;
-    for (size_t grayLevelIdx = 0 ; grayLevelIdx < maxGrayLevel + 1; ++grayLevelIdx) {
+    for (size_t grayLevelIdx = 0 ; grayLevelIdx < maxGrayLevel + 1; ++grayLevelIdx)
         histogram[(int)grayLevelIdx] /= numberOfNonZeroGrayValues;
-        sumOfProbabilites += histogram[(int)grayLevelIdx];
-    }
-
-    assert(std::fabs(sumOfProbabilites - 1.0f) < std::numeric_limits<float>::epsilon() && "the sum of the probabilities must be equal to one");
 
     float maxVarianceBetweenClass = 0.0f;
     for (size_t threshold = 0; threshold < maxGrayLevel + 1; ++threshold) {
